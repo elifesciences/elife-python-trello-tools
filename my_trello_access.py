@@ -17,22 +17,6 @@ client = TrelloClient(
 
 card_labels = {}
 
-test_titles = """(3) Reproducibility CSS landing page
-(2) Reproducibility CSS article pages
-(3) Group authors display
-(1) Change sign-up form on /content/early/recent
-(0.5) disable google tracking module
-(2) add tracking utm tracking code to outbound emails on email generated for our content alerts
-(2) Timebox: fix failing behat tests
-(0.5) SEO: make title tag unique for /about page
-(0.5) SEO: change /about page metadescription
-(2) Header: make the "Submit" button in the main navigation eLife red with white text on top and add a chevron
-(5) implement BeHat tests to test behaviour of article footnote behaviour
-(5) Reproducibility project article pages [3]
-(5) Reproducibility project landing page
-(1) Swap funder logos in footer and about page [0.5]
-(0.5) Add full company information to the footer [0.5]"""
-
 def get_boards(client):
 	boards = client.list_boards()
 	return boards  
