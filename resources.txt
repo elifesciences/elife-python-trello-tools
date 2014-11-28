@@ -1,0 +1,10 @@
+https://developers.google.com/google-apps/spreadsheets/#setting_up_your_client_library 
+
+authentication example with google drive API 
+https://developers.google.com/drive/web/quickstart/quickstart-python
+
+google API dashboard
+https://console.developers.google.com/project/mulvanysandbox/apiui/api?authuser=1 
+
+sheets api protocal
+https://developers.google.com/google-apps/spreadsheets/#retrieving_a_list_of_spreadsheets
