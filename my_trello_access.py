@@ -2,6 +2,7 @@ import os
 from trello import TrelloClient
 import re 
 from collections import defaultdict
+import csv 
 
 trello_key = os.environ['TRELLO_API_KEY']
 trello_secret = os.environ['TRELLO_API_SECRET']
@@ -104,9 +105,21 @@ def sum_project_categories(cards, categories):
 
 	return category_estimates 
 
+def f_as_p(value):
+	"""
+	takes a float and formats as a % 
+	"""
+	percent = str(value).split(".")[1]
+	if percent == "0" and str(value).split(".")[0] == "1":
+		percent = "100%"
+	elif percent == "0" and str(value).split(".")[0] == "0":
+		percent = "0%"
+	else:
+		percent = str(percent[0:2]) + "%"
+	return percent
+
 def get_done_cards_from_board(sprint, all_cards):
 	lists = sprint.all_lists()
-	print lists 
 	done_lists = []
 	done_cards = []
 	p = re.compile("done", re.IGNORECASE)
@@ -134,27 +147,45 @@ def get_done_cards_from_board(sprint, all_cards):
 	return return_cards
 
 def print_report_row(estimate_value, total_estimate, effort_vlaue, total_effort, dev_day):
-	print estimate_value, estimate_value / total_estimate, estimate_value / dev_days, effort_vlaue, effort_vlaue / total_effort, effort_vlaue / dev_days
+	print estimate_value, f_as_p(estimate_value / total_estimate), round(estimate_value / dev_days, 2), 
+	print effort_vlaue, f_as_p(effort_vlaue / total_effort),  round(effort_vlaue / dev_days, 2), 
 
 def print_report(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work):
+
+	print sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work
+	# TODO: function naming in this function is terrible - refactor 
 	print ""
 	print "report for: ", sprint_name
 	print "total estimated effort = ",  estimate 
 	print "effort elapsed to date = ", effort  
 
+	print "totals: ", 
 	print_report_row(estimate, estimate, effort, effort, dev_days)
 	print_report_row(done_estimate, done_estimate, done_effort, done_effort, dev_days)
+	print "\n" 
 
 	for category in categories:
-		category_estimate = category_work[category + "_estimate"]
-		category_effort = category_work[category + "_effort"]
+		try:
+			category_estimate = category_work[category + "_estimate"]
+		except:
+			category_estimate = 0.0
+		try:
+			category_effort = category_work[category + "_effort"]
+		except:
+			category_effort = 0.0
+		try: 
+			done_category_estimate = done_category_work[category + "_estimate"]
+		except:
+			done_category_estimate = 0.0 
+		try:
+			done_category_effort = done_category_work[category + "_effort"]
+		except:
+			done_category_effort = 0.0
+
 		print category, ": ",
 		print_report_row(category_estimate, estimate, category_effort, effort, dev_days)
-
-		category_estimate = done_category_work[category + "_estimate"]
-		category_effort = done_category_work[category + "_effort"]
-		print category, " done: ", 
-		print_report_row(category_estimate, done_estimate, category_effort, done_effort, dev_days)
+		print_report_row(done_category_estimate, done_estimate, done_category_effort, done_effort, dev_days)
+		print "\n"
 
 def get_cards_in_done_state(cards):
 	return None 
@@ -165,6 +196,7 @@ if __name__ == "__main__":
 	boards = get_boards(client)
 	sprint_boards = get_sprint_boards(boards)
 	sprint = select_a_sprint(sprint_boards)
+	sprint_name = sprint.name
 	cards = get_cards_from_board(sprint)
 	done_cards = get_done_cards_from_board(sprint, cards)
 
@@ -175,8 +207,7 @@ if __name__ == "__main__":
 	done_category_work = sum_project_categories(done_cards, categories)	
 
 	dev_days = 27.0 # TODO: need to extract this from a trello card 
-
-	print_report(sprint.name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
+	print_report(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
 
 
 
