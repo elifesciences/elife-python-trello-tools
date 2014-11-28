@@ -1,3 +1,23 @@
 trello/*
 client_secret*
+CHANGELOG
+CHANGELOG.md
+LICENSE
+MANIFEST.in
+README.md
+README.rst
+build
+client_secret_236300180877-nos8k67iq96kpo398fn1ggf6lkdbis3d.apps.googleusercontent.com.json
+dist
+document.txt
+google_auth_test_docs.py
+google_auth_test_sheets.py
+google_auth_test_sheets_httplib.py
+py_trello.egg-info
+requirements.txt
+setup.py
+test
+trello
+trello-creds.txt
+
 
