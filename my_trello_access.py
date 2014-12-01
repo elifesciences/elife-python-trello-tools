@@ -147,18 +147,28 @@ def get_done_cards_from_board(sprint, all_cards):
 	return return_cards
 
 def print_report_row(estimate_value, total_estimate, effort_vlaue, total_effort, dev_day):
-	print estimate_value, f_as_p(estimate_value / total_estimate), round(estimate_value / dev_days, 2), 
-	print effort_vlaue, f_as_p(effort_vlaue / total_effort),  round(effort_vlaue / dev_days, 2), 
+	report_row = gen_csv_report_row(estimate_value, 
+									total_estimate, 
+									effort_vlaue, 
+									total_effort, dev_day)
+	for item in report_row: print item, 
+
+def gen_csv_report_row(estimate_value, total_estimate, effort_vlaue, total_effort, dev_day):
+	csv_report_row = [ estimate_value, f_as_p(estimate_value / total_estimate), 
+						round(estimate_value / dev_days, 2), effort_vlaue, 
+						f_as_p(effort_vlaue / total_effort),  
+						round(effort_vlaue / dev_days, 2)
+						]
+	return csv_report_row
 
 def print_report(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work):
-
-	print sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work
 	# TODO: function naming in this function is terrible - refactor 
 	print ""
 	print "report for: ", sprint_name
 	print "total estimated effort = ",  estimate 
 	print "effort elapsed to date = ", effort  
 
+	print ""
 	print "totals: ", 
 	print_report_row(estimate, estimate, effort, effort, dev_days)
 	print_report_row(done_estimate, done_estimate, done_effort, done_effort, dev_days)
@@ -187,6 +197,60 @@ def print_report(sprint_name, categories, dev_days, estimate, effort, category_w
 		print_report_row(done_category_estimate, done_estimate, done_category_effort, done_effort, dev_days)
 		print "\n"
 
+def report_to_csv(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work):
+	csvfile = open("trello_report.csv","wb")
+	report_writer = csv.writer(csvfile, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL) 
+
+	report_writer.writerow(["report for: " + sprint_name])
+	report_writer.writerow(["total estimated effort = " + str(estimate)]) 
+	report_writer.writerow(["effort elapsed to date = " + str(effort)])  
+
+	col_headings = ["category",	
+					"estimate",	
+					"% of total estimate",	
+					"estimate per per dev day",	
+					"effort",	
+					"% of total effort",	
+					"effort per dev", 
+					"done estimate",
+					"% of total done estimate",	
+					"done estimate per dev day",	
+					"done effort", 	
+					"% of total done effort",	
+					"done points per dev day"]
+
+	report_writer.writerow(col_headings)  				
+	report_row = ["totals"]
+	report_row.extend(gen_csv_report_row(estimate, estimate, effort, effort, dev_days))
+	report_row.extend(gen_csv_report_row(done_estimate, done_estimate, done_effort, done_effort, dev_days))
+	report_writer.writerow(report_row)  
+
+	for category in categories:
+		try:
+			category_estimate = category_work[category + "_estimate"]
+		except:
+			category_estimate = 0.0
+		try:
+			category_effort = category_work[category + "_effort"]
+		except:
+			category_effort = 0.0
+		try: 
+			done_category_estimate = done_category_work[category + "_estimate"]
+		except:
+			done_category_estimate = 0.0 
+		try:
+			done_category_effort = done_category_work[category + "_effort"]
+		except:
+			done_category_effort = 0.0
+
+		report_row = [category]
+		report_row.extend(gen_csv_report_row(category_estimate, estimate, category_effort, effort, dev_days))
+		report_row.extend(gen_csv_report_row(done_category_estimate, done_estimate, done_category_effort, done_effort, dev_days))
+
+		report_writer.writerow(report_row)  
+
+
 def get_cards_in_done_state(cards):
 	return None 
 
@@ -208,6 +272,8 @@ if __name__ == "__main__":
 
 	dev_days = 27.0 # TODO: need to extract this from a trello card 
 	print_report(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
+	report_to_csv(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
+
 
 
 
