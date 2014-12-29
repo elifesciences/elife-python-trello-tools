@@ -39,11 +39,3 @@ Once all enviornment variables have been set then you can run reports via
 I've created a todo list for this project on the following trello board: 
 https://trello.com/b/Uii9iVR4/project-trello-reporting 
 
-
-
-
-- add an extension that can generate burndown charts 
-	- add a control to ping a daily update to slack 
-
-
-
