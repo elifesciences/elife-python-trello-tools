@@ -4,7 +4,7 @@ scripts to get data from trello and create reports in google drive
 
 # Requirements 
 
-requires the `py-trello` client.
+requires the `[py-trello](https://github.com/sarumont/py-trello)` client.
 
 # Obtaining tokens for Trello
 
@@ -24,5 +24,17 @@ set environemnt variables for
 	TRELLO_API_SECRET
 	TRELLO_OAUTH_TOKEN
 	TRELLO_OAUTH_SECRET
+
+# TODO
+
+I've created a todo list for this project on the following trello board: 
+https://trello.com/b/Uii9iVR4/project-trello-reporting 
+
+
+
+
+- add an extension that can generate burndown charts 
+	- add a control to ping a daily update to slack 
+
 
 
