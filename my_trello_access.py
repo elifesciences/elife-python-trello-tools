@@ -223,14 +223,35 @@ def get_cards_from_filtered_lists(sprint, all_cards, list_regex):
 	# avoid doing a card.fetch() operation on the cards we have dervived from the
 	# done lists. 
 	return_cards = []
-	done_cards_ids = []
-	for card in done_cards: done_cards_ids.append(card.id)
+	filtered_cards_ids = []
+	for card in filtered_cards: filtered_cards_ids.append(card.id)
 
 	for card in all_cards:
-		if card.id in done_cards_ids:
+		if card.id in filtered_cards_ids:
 			return_cards.append(card)
 
 	return return_cards
+
+def get_done_cards_from_board(sprint, all_cards):
+	list_regex = "done"
+	done_cards = get_cards_from_filtered_lists(sprint, all_cards, list_regex)
+	return done_cards 
+
+def get_time_cards_from_board(sprint, all_cards):
+	list_regex = "Developer Days"
+	time_cards = get_cards_from_filtered_lists(sprint, all_cards, list_regex)
+	return time_cards 
+
+def calcualte_available_time_from_sprint(sprint, all_cards):
+	time_cards = get_time_cards_from_board(sprint, all_cards)
+	if len(time_cards) == 0: # we have no info in this sprint board
+		availabe_time = settings.DEFAULT_DEV_DAYS 
+	else:
+		availabe_time = 0
+		for card in time_cards:
+			time_in_card = get_total_days_from_title(card.name) 
+			availabe_time += time_in_card
+	return availabe_time
 
 def print_report_row(estimate_value, total_estimate, effort_vlaue, total_effort, dev_day):
 	report_row = gen_csv_report_row(estimate_value, 
@@ -239,11 +260,45 @@ def print_report_row(estimate_value, total_estimate, effort_vlaue, total_effort,
 									total_effort, dev_day)
 	for item in report_row: print item, 
 
-def gen_csv_report_row(estimate_value, total_estimate, effort_vlaue, total_effort, dev_day):
-	csv_report_row = [ estimate_value, f_as_p(estimate_value / total_estimate), 
-						round(estimate_value / dev_days, 2), effort_vlaue, 
-						f_as_p(effort_vlaue / total_effort),  
-						round(effort_vlaue / dev_days, 2)
+def calculate_type_percent(type_value, total_value):
+	"""
+	calculate the % of total type in sprint that was given to 
+	this work category 
+
+	we can pass in both estimate and effort into this function 
+
+	if we pass in a sprint from early in 2014 we may have no effort values,
+	and so have to check for null values in the denominator
+	"""
+	if type_value == 0.0 or total_value == 0.0:
+		type_estimate_percent = f_as_p(0.0)
+	else:
+		type_estimate_percent = f_as_p(type_value / total_value)
+	return type_estimate_percent
+
+def calculate_type_per_devday(type_value, dev_days):
+	"""
+	number of points for tyep per dev day available for given work type
+
+	can be either estimate or effort, depending on arguments
+	"""
+	type_per_devday = round(type_value / dev_days, 2)
+	return type_per_devday
+
+def gen_csv_report_row(type_estimate, total_estimate, type_effort, total_effort, dev_days):
+
+	type_estimate_percent = calculate_type_percent(type_estimate, total_estimate)	
+	type_effort_percent = calculate_type_percent(type_effort, total_effort)	
+
+	type_estimate_per_devday = calculate_type_per_devday(type_estimate, dev_days)
+	type_effort_per_devday = calculate_type_per_devday(type_effort, dev_days)
+
+	csv_report_row = [ type_estimate, 
+					   type_estimate_percent, 
+					   type_estimate_per_devday,
+					   type_effort, 
+					   type_effort_percent,
+					   type_effort_per_devday
 						]
 	return csv_report_row
 
@@ -251,6 +306,7 @@ def print_report(sprint_name, categories, dev_days, estimate, effort, category_w
 	# TODO: function naming in this function is terrible - refactor 
 	print ""
 	print "report for: ", sprint_name
+	print "total availalbe days: ", dev_days 
 	print "total estimated effort = ",  estimate 
 	print "effort elapsed to date = ", effort  
 
