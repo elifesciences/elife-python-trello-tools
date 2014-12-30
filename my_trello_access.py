@@ -182,28 +182,40 @@ def sum_project_categories(cards, categories):
 def f_as_p(value):
 	"""
 	takes a float and formats as a % 
+
+	>>> f_as_p(0.7113)
+	'71.13%'
+
+	>>> f_as_p(0.0013)
+	'0.13%'
+
+	>>> f_as_p(0.2309482)
+	'23.09%'
+
+	>>> f_as_p(1.0000)
+	'100.00%'
+
+	>>> f_as_p(0.0)
+	'0.00%'
+
+	>>> f_as_p(0.8000)
+	'80.00%'
 	"""
-	percent = str(value).split(".")[1]
-	if percent == "0" and str(value).split(".")[0] == "1":
-		percent = "100%"
-	elif percent == "0" and str(value).split(".")[0] == "0":
-		percent = "0%"
-	else:
-		percent = str(percent[0:2]) + "%"
+	percent = "{:.2f}%".format(value * 100)
 	return percent
 
-def get_done_cards_from_board(sprint, all_cards):
+def get_cards_from_filtered_lists(sprint, all_cards, list_regex):
 	lists = sprint.all_lists()
-	done_lists = []
-	done_cards = []
-	p = re.compile("done", re.IGNORECASE)
+	filtered_lists = []
+	filtered_cards = []
+	p = re.compile(list_regex, re.IGNORECASE)
 	for l in lists:
 		if p.search(l.name):
-			done_lists.append(l)
-	if done_lists:
-		for l in done_lists:
+			filtered_lists.append(l)
+	if filtered_lists:
+		for l in filtered_lists:
 			list_cards = l.list_cards()
-			done_cards.extend(list_cards)
+			filtered_cards.extend(list_cards)
 
 	# this is a premature optimisation, we have already called a card.fetch()
 	# funciton eariler, which was noted to be an expensive operaion timewise
