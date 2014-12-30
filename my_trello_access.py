@@ -50,21 +50,95 @@ def get_card_titles(cards):
 	for card in cards:
 		print card.name 
 
-def get_estimate_from_title(title):
-	p = re.compile('\((.*)\)')
-	if p.search(title):
-		estimate = p.search(title).group().rstrip(")").lstrip("(")
-	else:
-		estimate = 0.0 
-	return float(estimate) 
+def extract_value_from_title(title, open_symbol, close_symbol):
+	""" extract a number from between brackets in the name of a trello card 
 
-def get_effort_from_title(title):
-	p = re.compile('\[(.*)\]')
+	>>> open_symbol = "["
+	>>> close_symbol = "]"
+	>>> title = "the estimate is [0.4]"
+	>>> extract_value_from_title(title, open_symbol, close_symbol)
+	0.4
+	>>> title = "the estimate is [890]"
+	>>> extract_value_from_title(title, open_symbol, close_symbol)
+	890.0
+	>>> title = "the estimate is [1.5]"
+	>>> extract_value_from_title(title, open_symbol, close_symbol)
+	1.5
+	>>> title = "the estimate is [not a number]"
+	>>> extract_value_from_title(title, open_symbol, close_symbol)
+	0.0
+	"""
+	compile_string = '\\' + open_symbol + "([0-9]+(\.[0-9]+)?)\\" + close_symbol
+	p = re.compile(compile_string) 
 	if p.search(title):
-		effort = p.search(title).group().rstrip("]").lstrip("[")
+		effort = p.search(title).group().rstrip(close_symbol).lstrip(open_symbol)
 	else:
 		effort = 0.0	
 	return float(effort)  
+
+def get_estimate_from_title(title):
+	""" extract a number from between parenthesis in the name of a trello card 
+
+	>>> title = "the estimate is (0.4)"
+	>>> get_estimate_from_title(title)
+	0.4
+	>>> title = "the estimate is (890)"
+	>>> get_estimate_from_title(title)
+	890.0
+	>>> title = "the estimate is (1.5)"
+	>>> get_estimate_from_title(title)
+	1.5
+	>>> title = "the estimate is (not a number)"
+	>>> get_estimate_from_title(title)
+	0.0
+	"""
+	open_symbol = "("
+	close_symbol = ")"
+	estimate = extract_value_from_title(title, open_symbol, close_symbol)
+	return estimate 
+
+
+def get_effort_from_title(title):
+	""" extract a number from between brackets in the name of a trello card 
+
+	>>> title = "the estimate is [0.4]"
+	>>> get_effort_from_title(title)
+	0.4
+	>>> title = "the estimate is [890]"
+	>>> get_effort_from_title(title)
+	890.0
+	>>> title = "the estimate is [1.5]"
+	>>> get_effort_from_title(title)
+	1.5
+	>>> title = "the estimate is [not a number]"
+	>>> get_effort_from_title(title)
+	0.0
+	"""
+	open_symbol = "["
+	close_symbol = "]"
+	effort = extract_value_from_title(title, open_symbol, close_symbol)
+	return effort
+
+def get_total_days_from_title(title):
+	""" extract a number from between curly brackets in the name of a trello card 
+
+	>>> title = "the estimate is {0.4}"
+	>>> get_total_days_from_title(title)
+	0.4
+	>>> title = "the estimate is {890}"
+	>>> get_total_days_from_title(title)
+	890.0
+	>>> title = "the estimate is {1.5}"
+	>>> get_total_days_from_title(title)
+	1.5
+	>>> title = "the estimate is {not a number}"
+	>>> get_total_days_from_title(title)
+	0.0
+	"""
+	open_symbol = "{"
+	close_symbol = "}"
+	total_days = extract_value_from_title(title, open_symbol, close_symbol)
+	return total_days
 
 def get_labels_from_card(card):
 	labels = card.labels
