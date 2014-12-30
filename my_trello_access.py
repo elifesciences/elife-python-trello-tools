@@ -3,6 +3,8 @@ from trello import TrelloClient
 import re 
 from collections import defaultdict
 import csv 
+import settings as settings 
+import pdb 
 
 trello_key = os.environ['TRELLO_API_KEY']
 trello_secret = os.environ['TRELLO_API_SECRET']
@@ -392,12 +394,11 @@ def report_to_csv(sprint_name, categories, dev_days, estimate, effort, category_
 
 		report_writer.writerow(report_row)  
 
-
 def get_cards_in_done_state(cards):
 	return None 
 
 if __name__ == "__main__":
-	categories = ["enhancement", "bugfix", "infrastructure", "new development"]
+	categories = settings.WORK_CATEGORIES 
 
 	boards = get_boards(client)
 	sprint_boards = get_sprint_boards(boards)
@@ -412,9 +413,9 @@ if __name__ == "__main__":
 	category_work = sum_project_categories(cards, categories)	
 	done_category_work = sum_project_categories(done_cards, categories)	
 
-	dev_days = 27.0 # TODO: need to extract this from a trello card 
+	dev_days = calcualte_available_time_from_sprint(sprint, cards)
 	print_report(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
-	report_to_csv(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
+	#  report_to_csv(sprint_name, categories, dev_days, estimate, effort, category_work, done_estimate, done_effort, done_category_work)
 
 
 
